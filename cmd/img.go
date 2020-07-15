@@ -39,6 +39,8 @@ var (
 	outPath string
 	width   int
 	quality int
+	recursion bool
+	isFile bool
 )
 // imgCmd represents the serve command
 var imgCmd = &cobra.Command{
@@ -54,15 +56,27 @@ var imgCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(imgCmd)
-	imgCmd.Flags().StringVarP(&root,"root","r","./img","需要压缩的图片目录或文件位置")
-	imgCmd.Flags().StringVarP(&outPath,"out","o","./outimgs","输出的目录或文件位置")
+	imgCmd.Flags().StringVarP(&root,"root","r","./","需要压缩的图片目录或文件位置(默认执行文件目录)")
+	imgCmd.Flags().StringVarP(&outPath,"out","o","./out","输出的目录！！！（默认执行文件/out）")
 	imgCmd.Flags().IntVarP(&width,"width","w",0,"图片的宽（0为不压缩大小）")
 	imgCmd.Flags().IntVarP(&quality,"quality","q",75,"图片压缩质量（20-100）")
+	imgCmd.Flags().BoolVarP(&recursion,"recursion","R",false,"是否递归目录(默认false)")
+
+
 }
 // get file's path
 func retrieveData(root string) (value chan string, err chan error) {
+
 	err = make(chan error, 1)
 	value = make(chan string)
+	if !IsFile(root){
+		last3 := root[len(root)-1:]
+		if last3!=string(os.PathSeparator) {
+			root+=string(os.PathSeparator)
+		}
+	}else {
+		isFile=true
+	}
 	go func() {
 		defer close(value)
 		err <- filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -73,7 +87,12 @@ func retrieveData(root string) (value chan string, err chan error) {
 			if !info.Mode().IsRegular() {
 				return nil
 			}
-			value <- path
+			//是否递归
+			if recursion||isFile{
+				value <- path
+			}else if root==strings.ReplaceAll(path,info.Name(),"") {
+				value <- path
+			}
 			return nil
 		})
 	}()
@@ -95,6 +114,7 @@ func ReceiveData(file chan string, value chan io.Reader, wg *sync.WaitGroup) {
 		if err != nil {
 			fmt.Println(err)
 		} else {
+
 			value <- fi}
 	}
 	wg.Done()
@@ -124,12 +144,15 @@ func PathExists(path string) (bool, error) {
 	return false, err
 }
 
-
+type imageFile struct {
+	img image.Image
+	path string
+}
 // resize and create a new photo with only id name.
 func DataProcessing(root string, outputFile string, wid int, q int) {
 	reader := make(chan io.Reader)
-	b := make(chan image.Image)
-	c := make(chan image.Image)
+	b := make(chan imageFile)
+	c := make(chan imageFile)
 	value, err := retrieveData(root)
 
 		exist,errs := PathExists(outputFile)
@@ -181,7 +204,8 @@ func DataProcessing(root string, outputFile string, wid int, q int) {
 				if err != nil {
 					glog.Errorln(err)
 				} else {
-					b <- img
+					//println(v.Name())
+					b <- imageFile{img:img,path: v.Name()}
 				}
 			}
 		}(i)
@@ -198,7 +222,7 @@ func DataProcessing(root string, outputFile string, wid int, q int) {
 			mark(i, "压缩")
 			defer wg2.Done()
 			for i := range b {
-				c <- resize.Resize(uint(wid), 0, i, resize.NearestNeighbor)
+				c <- imageFile{img:resize.Resize(uint(wid), 0, i.img, resize.NearestNeighbor),path: i.path}
 			}
 		}(i)
 	}
@@ -214,14 +238,14 @@ func DataProcessing(root string, outputFile string, wid int, q int) {
 			mark(i, "处理图片。。。")
 			defer wg3.Done()
 			for i := range c {
-				file, err := os.Create(outputFile + "/" + onlyID1() + ".jpeg")
+				file, err := os.Create(outputFile+ string(os.PathSeparator) + filepath.Base(i.path))
 				if err != nil {
 					fmt.Println(err)
 				}
 				if q < 20 {
 					q = 20
 				}
-				if err := jpeg.Encode(file, i, &jpeg.Options{q}); err != nil {
+				if err := jpeg.Encode(file, i.img, &jpeg.Options{q}); err != nil {
 					glog.Errorln("图片处理出错:", err)
 				}
 			}
