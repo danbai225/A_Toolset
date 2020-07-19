@@ -15,8 +15,13 @@ limitations under the License.
 */
 package main
 
-import "p00q.cn/A_Toolset/cmd"
+import (
+	"p00q.cn/A_Toolset/cmd"
+	"p00q.cn/A_Toolset/itself"
+)
 
 func main() {
+	itself.Init()
 	cmd.Execute()
 }
+

@@ -17,11 +17,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
+	"github.com/gogf/gf/os/gfile"
 	"github.com/golang/glog"
 	"github.com/googege/collie/mem"
 	"github.com/googege/gotools/id"
 	"github.com/nfnt/resize"
+	"github.com/spf13/cobra"
 	"image"
 	"image/gif"
 	"image/jpeg"
@@ -49,7 +50,8 @@ var imgCmd = &cobra.Command{
 	Long: `该命令用于图片压缩支持格式:Png和Jpg`,Example: "使用例子： A img -r ./imgs -o ./newimgs",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("开始压缩...🚀")
-		DataProcessing(root, outPath, width, quality)
+
+		DataProcessing(gfile.Abs(root), gfile.Abs(outPath), width, quality)
 		fmt.Println("压缩结束 ☕️")
 	},
 }
@@ -66,7 +68,6 @@ func init() {
 }
 // get file's path
 func retrieveData(root string) (value chan string, err chan error) {
-
 	err = make(chan error, 1)
 	value = make(chan string)
 	if !IsFile(root){
@@ -74,6 +75,7 @@ func retrieveData(root string) (value chan string, err chan error) {
 		if last3!=string(os.PathSeparator) {
 			root+=string(os.PathSeparator)
 		}
+		println(root)
 	}else {
 		isFile=true
 	}
