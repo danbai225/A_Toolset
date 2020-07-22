@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// serveCmd represents the serve command
+// mathCmd represents the serve command
 var mathCmd = &cobra.Command{
 	Use:   "=",
 	Short: "计算数学公式",
@@ -36,19 +36,19 @@ var mathCmd = &cobra.Command{
 	max(min(2^3, 3^2), 10*1.5-7)
 	double(6) + 3
 详情：https://github.com/dengsgo/math-engine
-`,Example: "使用例子： A = 1+1/2 \n输出：1+1/2 = 1.5",
+`, Example: "使用例子： A = 1+1/2 \n输出：1+1/2 = 1.5",
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args)>0{
+		if len(args) > 0 {
 			s := args[0]
 			r, err := engine.ParseAndExec(s)
 			if err != nil {
 				fmt.Println(err)
 			}
 			fmt.Printf("%s = %v\r\n", s, r)
-		}else{
+		} else {
 			fmt.Println(cmd.Long)
 		}
-		
+
 	},
 }
 

@@ -16,42 +16,36 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"encoding/base64"
 	"github.com/spf13/cobra"
-	"p00q.cn/A_Toolset/itself"
-	"p00q.cn/A_Toolset/utils"
 )
 
-var ini bool
-var iniName string
+var dBase64 bool
 
-// confCmd represents the serve command
-var confCmd = &cobra.Command{
-	Use:   "conf",
-	Short: "Cil配置管理",
-	Long:  `Cil配置管理`, Example: "A conf key val",
+// base64 represents the serve command
+var baseCmd = &cobra.Command{
+	Use:   "base",
+	Short: "base64 加解密",
+	Long:  `base64 是一种常见的编码 base64用于快速加解密`, Example: "使用例子： A base hi,base64",
 	Run: func(cmd *cobra.Command, args []string) {
-		if ini {
-			utils.AddInitData(iniName)
-			return
-		}
 		if len(args) > 0 {
-			k := args[0]
-			if len(args) > 1 {
-				v := args[1]
-				itself.Put(k, v)
-				fmt.Printf("%s = %s\r\n", k, v)
+			s := args[0]
+			if dBase64 {
+				sDec, _ := base64.StdEncoding.DecodeString(s)
+				println(string(sDec))
 			} else {
-				fmt.Printf("%s = %s\r\n", k, itself.Get(k))
+				b := []byte(s)
+				sEnc := base64.StdEncoding.EncodeToString(b)
+				println(sEnc)
 			}
 		} else {
-			fmt.Println(cmd.Long)
+			println(cmd.UsageString())
 		}
+
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(confCmd)
-	confCmd.Flags().BoolVarP(&ini, "ini", "i", false, "初始化0")
-	confCmd.Flags().StringVarP(&iniName, "iniName", "n", "./A", "初始化文件名")
+	rootCmd.AddCommand(baseCmd)
+	baseCmd.Flags().BoolVarP(&dBase64, "decode", "d", false, "是否解码(默认是编码)")
 }

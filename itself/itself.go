@@ -10,41 +10,42 @@ import (
 	"p00q.cn/A_Toolset/utils"
 	"path/filepath"
 )
+
 var (
-	appPath= ""
-	appFileSize int64 =0
-	DataLength int64=0
-	mapData  map[string]string
+	appPath           = ""
+	appFileSize int64 = 0
+	DataLength  int64 = 0
+	mapData     map[string]string
 )
 
-func Get(key string)string{
-	str:=mapData[key]
+func Get(key string) string {
+	str := mapData[key]
 	if !utils.IsNil(str) {
 		return str
 	}
 	return ""
 }
-func Put(key string,val string){
-	mapData[key]=val
+func Put(key string, val string) {
+	mapData[key] = val
 	marshalMap()
 }
 func getDataLength() int64 {
-	path := gfile.GetBytesByTwoOffsetsByPath(execPath(), execFileSize()-8,execFileSize())
-	DataLength=utils.BytesToInt64(path)
+	path := gfile.GetBytesByTwoOffsetsByPath(execPath(), execFileSize()-8, execFileSize())
+	DataLength = utils.BytesToInt64(path)
 	return DataLength
 }
-func Init()  {
+func Init() {
 	loadMapData()
 }
-func marshalMap()  {
-	if utils.IsNil(mapData){
+func marshalMap() {
+	if utils.IsNil(mapData) {
 		loadMapData()
 	}
 	data, err := json.Marshal(mapData)
 	utils.Check(err)
 	//新的数据长度
-	oldLength:=DataLength
-	DataLength= int64(len(data) + 8)
+	oldLength := DataLength
+	DataLength = int64(len(data) + 8)
 	data = bytesCombine(data, utils.Int64ToBytes(DataLength))
 	//读取当前文件全部数据
 	readFile, err := ioutil.ReadFile(execPath())
@@ -61,43 +62,41 @@ func marshalMap()  {
 func bytesCombine(pBytes ...[]byte) []byte {
 	return bytes.Join(pBytes, []byte(""))
 }
+
 //加载map数据
-func loadMapData()  {
-	if gfile.IsFile(execPath()+"-old"){
+func loadMapData() {
+	if gfile.IsFile(execPath() + "-old") {
 		_ = gfile.Remove(execPath() + "-old")
 	}
-	if getDataLength()==0{
-		mapData=make(map[string]string)
-	}else {
-		println(execFileSize())
-		println(execFileSize()-getDataLength())
-		println(execFileSize()-8)
+	if getDataLength() == 0 {
+		mapData = make(map[string]string)
+	} else {
 		mapDataBytes := gfile.GetBytesByTwoOffsetsByPath(execPath(), execFileSize()-getDataLength(), execFileSize()-8)
-		err:=json.Unmarshal(mapDataBytes, &mapData)
+		err := json.Unmarshal(mapDataBytes, &mapData)
 		utils.Check(err)
 	}
 }
 
 /**
 程序路径
- */
+*/
 func execPath() string {
-	if appPath==""{
+	if appPath == "" {
 		file, err := exec.LookPath(os.Args[0])
 		utils.Check(err)
-		appPath, _ =filepath.Abs(file)
+		appPath, _ = filepath.Abs(file)
 	}
 	return appPath
 }
 
-
-
 func execFileSize() int64 {
-	if appFileSize==0{
+	if appFileSize == 0 {
 		fileInfo, err := os.Stat(execPath())
 		utils.Check(err)
-		appFileSize= fileInfo.Size()
+		appFileSize = fileInfo.Size()
 	}
 	return appFileSize
 }
-
+func Remove(key string) {
+	delete(mapData, key)
+}
