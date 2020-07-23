@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/binary"
 	"fmt"
+	"github.com/axgle/mahonia"
 	"github.com/gogf/gf/os/gfile"
 	"os"
 	"path/filepath"
@@ -19,10 +20,11 @@ func IsNil(i interface{}) bool {
 	vi := reflect.ValueOf(i)
 	return vi.IsNil()
 }
+
 /*
 判断文件或文件夹存不存在
- */
-func PathExists(path string) (bool) {
+*/
+func PathExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true
@@ -33,6 +35,7 @@ func PathExists(path string) (bool) {
 	Check(err)
 	return false
 }
+
 // 判断所给路径是否为文件夹
 func IsDir(path string) bool {
 	s, err := os.Stat(path)
@@ -46,19 +49,20 @@ func IsDir(path string) bool {
 func IsFile(path string) bool {
 	return !IsDir(path)
 }
+
 /*
 验证错误
 */
-func Check(err error)  {
-	if err!=nil{
+func Check(err error) {
+	if err != nil {
 		println(err.Error())
 	}
 }
 func PathSeparator() string {
 	return string(os.PathSeparator)
 }
-func AddPath(p1 string,p2 string) string {
-	return p1+PathSeparator()+p2
+func AddPath(p1 string, p2 string) string {
+	return p1 + PathSeparator() + p2
 }
 func DirSizeB(path string) int64 {
 	var size int64
@@ -71,6 +75,7 @@ func DirSizeB(path string) int64 {
 	Check(err)
 	return size
 }
+
 // 字节的单位转换 保留两位小数
 func FormatFileSize(fileSize int64) (size string) {
 	if fileSize < 1024 {
@@ -88,9 +93,10 @@ func FormatFileSize(fileSize int64) (size string) {
 		return fmt.Sprintf("%.2fEB", float64(fileSize)/float64(1024*1024*1024*1024*1024))
 	}
 }
-func AddInitData(filepath string)  {
-	gfile.PutBytesAppend(filepath,Int64ToBytes(int64(0)))
+func AddInitData(filepath string) {
+	gfile.PutBytesAppend(filepath, Int64ToBytes(int64(8)))
 }
+
 /*
 int64转Bytes
 */
@@ -99,9 +105,18 @@ func Int64ToBytes(i int64) []byte {
 	binary.BigEndian.PutUint64(buf, uint64(i))
 	return buf
 }
+
 /*
 Bytes转int64
 */
 func BytesToInt64(buf []byte) int64 {
 	return int64(binary.BigEndian.Uint64(buf))
+}
+func ConvertToString(src string, srcCode string, tagCode string) string {
+	srcCoder := mahonia.NewDecoder(srcCode)
+	srcResult := srcCoder.ConvertString(src)
+	tagCoder := mahonia.NewDecoder(tagCode)
+	_, cdata, _ := tagCoder.Translate([]byte(srcResult), true)
+	result := string(cdata)
+	return result
 }

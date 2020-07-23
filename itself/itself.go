@@ -68,12 +68,12 @@ func loadMapData() {
 	if gfile.IsFile(execPath() + "-old") {
 		_ = gfile.Remove(execPath() + "-old")
 	}
-	if getDataLength() == 0 {
-		mapData = make(map[string]string)
-	} else {
+	if getDataLength() > 8 {
 		mapDataBytes := gfile.GetBytesByTwoOffsetsByPath(execPath(), execFileSize()-getDataLength(), execFileSize()-8)
 		err := json.Unmarshal(mapDataBytes, &mapData)
 		utils.Check(err)
+	} else {
+		mapData = make(map[string]string)
 	}
 }
 

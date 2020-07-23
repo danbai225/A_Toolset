@@ -35,25 +35,26 @@ import (
 	"p00q.cn/A_Toolset/bat"
 )
 
-var GET ="GET"
+var GET = "GET"
+
 // httpCmd represents the http command
 var httpCmd = &cobra.Command{
-	Use:   "http [flags] [METHOD] bat.URL [ITEM [ITEM]]",
-	Short: "HTTP交互命令行",
-	Long: `详情： https://github.com/astaxie/bat`,
+	Use:     "http [flags] [METHOD] bat.URL [ITEM [ITEM]]",
+	Short:   "HTTP交互命令行",
+	Long:    `详情： https://github.com/astaxie/bat`,
 	Example: "A http baidu.com",
 	Run: func(cmd *cobra.Command, args []string) {
-		 if len(args)==0{
-		 	print(cmd.UsageString())
-			 os.Exit(1)
-		 }
-		 if len(args)==1 {
-			 bat.URL=&args[0]
-			 bat.Method =&GET
-		}else {
-			 bat.URL=&args[1]
-			 bat.Method =&args[0]
-		 }
+		if len(args) == 0 {
+			print(cmd.UsageString())
+			os.Exit(1)
+		}
+		if len(args) == 1 {
+			bat.URL = &args[0]
+			bat.Method = &GET
+		} else {
+			bat.URL = &args[1]
+			bat.Method = &args[0]
+		}
 		if bat.Ver {
 			fmt.Println("Version:", bat.Version)
 			os.Exit(2)
@@ -295,19 +296,19 @@ var httpCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(httpCmd)
-	httpCmd.Flags().BoolVarP(&bat.Ver,"version","v",false,"输出bat（内置http库）版本")
-	httpCmd.Flags().BoolVarP(&bat.Pretty,"pretty","p",false,"打印漂亮的Json格式")
-	httpCmd.Flags().StringVar(&bat.PrintV,"print","A","打印请求和响应")
-	httpCmd.Flags().BoolVarP(&bat.Form,"form","f",false,"以表单形式提交")
-	httpCmd.Flags().BoolVarP(&bat.Download,"download","d",false,"下载url内容作为文件")
-	httpCmd.Flags().BoolVarP(&bat.InsecureSSL,"insecure","i",false,"允许在没有证书的情况下连接到SSL站点")
-	httpCmd.Flags().StringVarP(&bat.Auth,"bat.Auth","a","","HTTP身份验证用户名:密码，用户[:PASS]")
-	httpCmd.Flags().StringVar(&bat.Proxy,"bat.Proxy","","代理主机和端口，代理bat.URL")
-	httpCmd.Flags().BoolVarP(&bat.Bench,"bench","b",false,"向bat.URL发送bench请求")
+	httpCmd.Flags().BoolVarP(&bat.Ver, "version", "v", false, "输出bat（内置http库）版本")
+	httpCmd.Flags().BoolVarP(&bat.Pretty, "pretty", "p", false, "打印漂亮的Json格式")
+	httpCmd.Flags().StringVar(&bat.PrintV, "print", "A", "打印请求和响应")
+	httpCmd.Flags().BoolVarP(&bat.Form, "form", "f", false, "以表单形式提交")
+	httpCmd.Flags().BoolVarP(&bat.Download, "download", "d", false, "下载url内容作为文件")
+	httpCmd.Flags().BoolVarP(&bat.InsecureSSL, "insecure", "i", false, "允许在没有证书的情况下连接到SSL站点")
+	httpCmd.Flags().StringVarP(&bat.Auth, "bat.Auth", "a", "", "HTTP身份验证用户名:密码，用户[:PASS]")
+	httpCmd.Flags().StringVar(&bat.Proxy, "bat.Proxy", "", "代理主机和端口，代理bat.URL")
+	httpCmd.Flags().BoolVarP(&bat.Bench, "bench", "b", false, "向bat.URL发送bench请求")
 	httpCmd.Flags().IntVar(&bat.BenchN, "b.N", 1000, "要发起的请求数")
 	httpCmd.Flags().IntVar(&bat.BenchC, "b.C", 100, "要并发运行的请求数。")
 	httpCmd.Flags().StringVar(&bat.Body, "body", "", "原始数据作为主体发送")
-	httpCmd.Flags().BoolVarP(bat.Isjson,"json","j", true, "以JSON对象的形式发送数据")
+	httpCmd.Flags().BoolVarP(bat.Isjson, "json", "j", true, "以JSON对象的形式发送数据")
 }
 func parsePrintOption(s string) {
 	if strings.ContainsRune(s, 'A') {

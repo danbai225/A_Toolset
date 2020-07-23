@@ -20,7 +20,6 @@ import (
 	"github.com/gogf/gf/os/gfile"
 	"github.com/golang/glog"
 	"github.com/googege/collie/mem"
-	"github.com/googege/gotools/id"
 	"github.com/nfnt/resize"
 	"github.com/spf13/cobra"
 	"image"
@@ -30,24 +29,25 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
+
 var (
-	root    string
-	outPath string
-	width   int
-	quality int
+	root      string
+	outPath   string
+	width     int
+	quality   int
 	recursion bool
-	isFile bool
+	isFile    bool
 )
+
 // imgCmd represents the serve command
 var imgCmd = &cobra.Command{
 	Use:   "img",
 	Short: "压缩图片",
-	Long: `该命令用于图片压缩支持格式:Png和Jpg`,Example: "使用例子： A img -r ./imgs -o ./newimgs",
+	Long:  `该命令用于图片压缩支持格式:Png和Jpg`, Example: "使用例子： A img -r ./imgs -o ./newimgs",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("开始压缩...🚀")
 
@@ -58,26 +58,26 @@ var imgCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(imgCmd)
-	imgCmd.Flags().StringVarP(&root,"root","r","./","需要压缩的图片目录或文件位置(默认执行文件目录)")
-	imgCmd.Flags().StringVarP(&outPath,"out","o","./out","输出的目录！！！（默认执行文件/out）")
-	imgCmd.Flags().IntVarP(&width,"width","w",0,"图片的宽（0为不压缩大小）")
-	imgCmd.Flags().IntVarP(&quality,"quality","q",75,"图片压缩质量（20-100）")
-	imgCmd.Flags().BoolVarP(&recursion,"recursion","R",false,"是否递归目录(默认false)")
-
+	imgCmd.Flags().StringVarP(&root, "root", "r", "./", "需要压缩的图片目录或文件位置(默认执行文件目录)")
+	imgCmd.Flags().StringVarP(&outPath, "out", "o", "./out", "输出的目录！！！（默认执行文件/out）")
+	imgCmd.Flags().IntVarP(&width, "width", "w", 0, "图片的宽（0为不压缩大小）")
+	imgCmd.Flags().IntVarP(&quality, "quality", "q", 75, "图片压缩质量（20-100）")
+	imgCmd.Flags().BoolVarP(&recursion, "recursion", "R", false, "是否递归目录(默认false)")
 
 }
+
 // get file's path
 func retrieveData(root string) (value chan string, err chan error) {
 	err = make(chan error, 1)
 	value = make(chan string)
-	if !IsFile(root){
+	if !IsFile(root) {
 		last3 := root[len(root)-1:]
-		if last3!=string(os.PathSeparator) {
-			root+=string(os.PathSeparator)
+		if last3 != string(os.PathSeparator) {
+			root += string(os.PathSeparator)
 		}
 		println(root)
-	}else {
-		isFile=true
+	} else {
+		isFile = true
 	}
 	go func() {
 		defer close(value)
@@ -90,9 +90,9 @@ func retrieveData(root string) (value chan string, err chan error) {
 				return nil
 			}
 			//是否递归
-			if recursion||isFile{
+			if recursion || isFile {
 				value <- path
-			}else if root==strings.ReplaceAll(path,info.Name(),"") {
+			} else if root == strings.ReplaceAll(path, info.Name(), "") {
 				value <- path
 			}
 			return nil
@@ -117,14 +117,17 @@ func ReceiveData(file chan string, value chan io.Reader, wg *sync.WaitGroup) {
 			fmt.Println(err)
 		} else {
 
-			value <- fi}
+			value <- fi
+		}
 	}
 	wg.Done()
 }
+
 // 判断所给路径是否为文件
 func IsFile(path string) bool {
 	return !IsDir(path)
 }
+
 // 判断所给路径是否为文件夹
 func IsDir(path string) bool {
 	s, err := os.Stat(path)
@@ -147,9 +150,10 @@ func PathExists(path string) (bool, error) {
 }
 
 type imageFile struct {
-	img image.Image
+	img  image.Image
 	path string
 }
+
 // resize and create a new photo with only id name.
 func DataProcessing(root string, outputFile string, wid int, q int) {
 	reader := make(chan io.Reader)
@@ -157,23 +161,23 @@ func DataProcessing(root string, outputFile string, wid int, q int) {
 	c := make(chan imageFile)
 	value, err := retrieveData(root)
 
-		exist,errs := PathExists(outputFile)
-		if errs != nil {
-			fmt.Printf("获取文件夹错误![%v]\n", errs)
-			return
-		}
+	exist, errs := PathExists(outputFile)
+	if errs != nil {
+		fmt.Printf("获取文件夹错误![%v]\n", errs)
+		return
+	}
 
-		if exist {
-			fmt.Printf("有文件夹![%v]\n", outputFile)
+	if exist {
+		fmt.Printf("有文件夹![%v]\n", outputFile)
+	} else {
+		fmt.Printf("没有文件夹![%v]\n", outputFile)
+		// 创建文件夹
+		err := os.Mkdir(outputFile, os.ModePerm)
+		if err != nil {
+			fmt.Printf("创建文件夹失败![%v]\n", err)
 		} else {
-			fmt.Printf("没有文件夹![%v]\n", outputFile)
-			// 创建文件夹
-			err := os.Mkdir(outputFile, os.ModePerm)
-			if err != nil {
-				fmt.Printf("创建文件夹失败![%v]\n", err)
-			} else {
-				fmt.Printf("创建文件夹成功!\n")
-			}
+			fmt.Printf("创建文件夹成功!\n")
+		}
 	}
 	wg := new(sync.WaitGroup)
 	wg.Add(2)
@@ -207,7 +211,7 @@ func DataProcessing(root string, outputFile string, wid int, q int) {
 					glog.Errorln(err)
 				} else {
 					//println(v.Name())
-					b <- imageFile{img:img,path: v.Name()}
+					b <- imageFile{img: img, path: v.Name()}
 				}
 			}
 		}(i)
@@ -224,7 +228,7 @@ func DataProcessing(root string, outputFile string, wid int, q int) {
 			mark(i, "压缩")
 			defer wg2.Done()
 			for i := range b {
-				c <- imageFile{img:resize.Resize(uint(wid), 0, i.img, resize.NearestNeighbor),path: i.path}
+				c <- imageFile{img: resize.Resize(uint(wid), 0, i.img, resize.NearestNeighbor), path: i.path}
 			}
 		}(i)
 	}
@@ -240,7 +244,7 @@ func DataProcessing(root string, outputFile string, wid int, q int) {
 			mark(i, "处理图片。。。")
 			defer wg3.Done()
 			for i := range c {
-				file, err := os.Create(outputFile+ string(os.PathSeparator) + filepath.Base(i.path))
+				file, err := os.Create(outputFile + string(os.PathSeparator) + filepath.Base(i.path))
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -261,22 +265,6 @@ func DataProcessing(root string, outputFile string, wid int, q int) {
 	wg3.Wait()
 }
 
-// workNode is the computer's name if you have so many computers.
-func onlyID() string {
-	snow, err := id.NewSnowFlake(1)
-	if err != nil {
-		fmt.Println(err)
-	}
-	glog.V(1).Info("use snowFlake")
-	return strconv.FormatInt(snow.GetID(), 10)
-}
-func onlyID1() string {
-	u, err := id.NewUUID(id.VERSION_1, nil)
-	if err != nil {
-		glog.Error(err)
-	}
-	return u.String()
-}
 func findName(name string) string {
 	v := name[len(name)-4:]
 	v1 := name[len(name)-3:]
