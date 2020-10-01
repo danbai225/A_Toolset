@@ -1,13 +1,19 @@
 package utils
 
 import (
+	"crypto/md5"
 	"encoding/binary"
 	"fmt"
 	"github.com/axgle/mahonia"
 	"github.com/gogf/gf/os/gfile"
+	"io"
+
+	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 )
 
 /*
@@ -48,6 +54,16 @@ func IsDir(path string) bool {
 // 判断所给路径是否为文件
 func IsFile(path string) bool {
 	return !IsDir(path)
+}
+
+//获取文件大小
+func GetFileSize(filename string) int64 {
+	var result int64
+	filepath.Walk(filename, func(path string, f os.FileInfo, err error) error {
+		result = f.Size()
+		return nil
+	})
+	return result
 }
 
 /*
@@ -119,4 +135,79 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 	_, cdata, _ := tagCoder.Translate([]byte(srcResult), true)
 	result := string(cdata)
 	return result
+}
+func GetLANIps() []string {
+	ips := make([]string, 0)
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	for _, address := range addrs {
+		// 检查ip地址判断是否回环地址
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				ips = append(ips, ipnet.IP.String())
+			}
+		}
+	}
+	return ips
+}
+
+//获取指定目录下的所有文件,包含子目录下的文件
+func GetAllFiles(dirPth string, suffix string, upper bool) (files []string, err error) {
+	var dirs []string
+	dir, err := ioutil.ReadDir(dirPth)
+	if err != nil {
+		return nil, err
+	}
+
+	PthSep := string(os.PathSeparator)
+	for _, fi := range dir {
+		if fi.IsDir() { // 目录, 递归遍历
+			dirs = append(dirs, dirPth+PthSep+fi.Name())
+			GetAllFiles(dirPth+PthSep+fi.Name(), suffix, upper)
+		} else {
+			// 过滤指定格式
+			var fName = fi.Name()
+			if upper {
+				suffix = strings.ToUpper(suffix)
+				fName = strings.ToUpper(fi.Name())
+			}
+			ok := strings.HasSuffix(fName, suffix)
+			if ok {
+				files = append(files, dirPth+PthSep+fi.Name())
+			}
+		}
+	}
+
+	// 读取子目录下文件
+	for _, table := range dirs {
+		temp, _ := GetAllFiles(table, suffix, upper)
+		for _, temp1 := range temp {
+			files = append(files, temp1)
+		}
+	}
+
+	return files, nil
+}
+
+//计算文件md5
+func CalcFileMD5(filename string) (string, error) {
+	f, err := os.Open(filename) //打开文件
+	if nil != err {
+		fmt.Println(err)
+		return "", err
+	}
+	defer f.Close()
+
+	md5Handle := md5.New()         //创建 md5 句柄
+	_, err = io.Copy(md5Handle, f) //将文件内容拷贝到 md5 句柄中
+	if nil != err {
+		fmt.Println(err)
+		return "", err
+	}
+	md := md5Handle.Sum(nil)        //计算 MD5 值，返回 []byte
+	md5str := fmt.Sprintf("%x", md) //将 []byte 转为 string
+	return md5str, nil
 }

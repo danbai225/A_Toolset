@@ -24,4 +24,3 @@ func main() {
 	itself.Init()
 	cmd.Execute()
 }
-
