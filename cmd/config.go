@@ -22,8 +22,11 @@ import (
 	"p00q.cn/A_Toolset/utils"
 )
 
-var ini bool
+var confIni bool
 var iniName string
+var confExportData bool
+var confDataFile string
+var confDel bool
 
 // confCmd represents the serve command
 var confCmd = &cobra.Command{
@@ -31,12 +34,23 @@ var confCmd = &cobra.Command{
 	Short: "Cil配置管理",
 	Long:  `Cil配置管理`, Example: "A conf key val",
 	Run: func(cmd *cobra.Command, args []string) {
-		if ini {
+		if confDataFile != "" {
+			itself.ImportData(confDataFile)
+			return
+		}
+		if confExportData {
+			itself.ExportData()
+			return
+		}
+		if confIni {
 			utils.AddInitData(iniName)
 			return
 		}
 		if len(args) > 0 {
 			k := args[0]
+			if confDel {
+				itself.Remove(k)
+			}
 			if len(args) > 1 {
 				v := args[1]
 				itself.Put(k, v)
@@ -52,6 +66,9 @@ var confCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(confCmd)
-	confCmd.Flags().BoolVarP(&ini, "ini", "i", false, "初始化0")
-	confCmd.Flags().StringVarP(&iniName, "iniName", "n", "./A", "初始化文件名")
+	confCmd.Flags().BoolVarP(&confIni, "ini", "i", false, "初始化0")
+	confCmd.Flags().BoolVarP(&confDel, "del", "d", false, "删除key")
+	confCmd.Flags().BoolVarP(&confExportData, "exportData", "e", false, "导出数据")
+	confCmd.Flags().StringVarP(&iniName, "iniName", "n", itself.ExecPath(), "初始化文件名")
+	confCmd.Flags().StringVarP(&confDataFile, "dataFile", "f", "", "导入数据文件")
 }

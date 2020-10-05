@@ -40,7 +40,6 @@ var translateCmd = &cobra.Command{
 		} else {
 			println(cmd.UsageString())
 		}
-
 	},
 }
 

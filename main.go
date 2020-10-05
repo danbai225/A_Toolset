@@ -21,6 +21,7 @@ import (
 )
 
 func main() {
+	//编译后记得执行 a conf -i 初始化
 	itself.Init()
 	cmd.Execute()
 }

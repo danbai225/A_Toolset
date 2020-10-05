@@ -30,7 +30,7 @@ func Put(key string, val string) {
 	marshalMap()
 }
 func getDataLength() int64 {
-	path := gfile.GetBytesByTwoOffsetsByPath(execPath(), execFileSize()-8, execFileSize())
+	path := gfile.GetBytesByTwoOffsetsByPath(ExecPath(), execFileSize()-8, execFileSize())
 	DataLength = utils.BytesToInt64(path)
 	return DataLength
 }
@@ -48,14 +48,14 @@ func marshalMap() {
 	DataLength = int64(len(data) + 8)
 	data = bytesCombine(data, utils.Int64ToBytes(DataLength))
 	//读取当前文件全部数据
-	readFile, err := ioutil.ReadFile(execPath())
+	readFile, err := ioutil.ReadFile(ExecPath())
 	utils.Check(err)
 	//追加新的数据
 	readFile = bytesCombine(readFile[:appFileSize-oldLength], data)
 	//替换文件
-	_ = gfile.Rename(execPath(), execPath()+"-old")
-	_ = gfile.PutBytesAppend(execPath()+"-new", readFile)
-	_ = gfile.Rename(execPath()+"-new", execPath())
+	_ = gfile.Rename(ExecPath(), ExecPath()+"-old")
+	_ = gfile.PutBytesAppend(ExecPath()+"-new", readFile)
+	_ = gfile.Rename(ExecPath()+"-new", ExecPath())
 }
 
 //BytesCombine 多个[]byte数组合并成一个[]byte
@@ -65,11 +65,11 @@ func bytesCombine(pBytes ...[]byte) []byte {
 
 //加载map数据
 func loadMapData() {
-	if gfile.IsFile(execPath() + "-old") {
-		_ = gfile.Remove(execPath() + "-old")
+	if gfile.IsFile(ExecPath() + "-old") {
+		_ = gfile.Remove(ExecPath() + "-old")
 	}
 	if getDataLength() > 8 {
-		mapDataBytes := gfile.GetBytesByTwoOffsetsByPath(execPath(), execFileSize()-getDataLength(), execFileSize()-8)
+		mapDataBytes := gfile.GetBytesByTwoOffsetsByPath(ExecPath(), execFileSize()-getDataLength(), execFileSize()-8)
 		err := json.Unmarshal(mapDataBytes, &mapData)
 		utils.Check(err)
 	} else {
@@ -80,7 +80,7 @@ func loadMapData() {
 /**
 程序路径
 */
-func execPath() string {
+func ExecPath() string {
 	if appPath == "" {
 		file, err := exec.LookPath(os.Args[0])
 		utils.Check(err)
@@ -91,7 +91,7 @@ func execPath() string {
 
 func execFileSize() int64 {
 	if appFileSize == 0 {
-		fileInfo, err := os.Stat(execPath())
+		fileInfo, err := os.Stat(ExecPath())
 		utils.Check(err)
 		appFileSize = fileInfo.Size()
 	}
@@ -99,4 +99,25 @@ func execFileSize() int64 {
 }
 func Remove(key string) {
 	delete(mapData, key)
+}
+func ExportData() {
+	data, _ := json.Marshal(mapData)
+	gfile.PutBytesAppend("./data.a", data)
+}
+func ImportData(data string) {
+	f, err := gfile.Open(data)
+	defer f.Close()
+	if err != nil {
+		println("打开文件失败")
+	}
+	all, err := ioutil.ReadAll(f)
+	if err != nil {
+		println("读取数据失败")
+	}
+	m := make(map[string]string)
+	json.Unmarshal(all, &m)
+	for s, s2 := range m {
+		mapData[s] = s2
+	}
+	marshalMap()
 }
