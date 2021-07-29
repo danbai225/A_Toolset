@@ -56,6 +56,7 @@ func marshalMap() {
 	_ = gfile.Rename(ExecPath(), ExecPath()+"-old")
 	_ = gfile.PutBytesAppend(ExecPath()+"-new", readFile)
 	_ = gfile.Rename(ExecPath()+"-new", ExecPath())
+	_ = gfile.Chmod(ExecPath(), 0777)
 }
 
 //BytesCombine 多个[]byte数组合并成一个[]byte
