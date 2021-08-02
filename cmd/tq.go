@@ -73,7 +73,7 @@ var tqCmd = &cobra.Command{
 			}
 			println("位置:" + info.Results[0].Location.Name + "未来12小时天气")
 			formHead := []string{"时间", "天气", "温度", "湿度", "风向", "风速"}
-			demo, err := gotable.CreateTable(formHead)
+			demo, err := gotable.Create(formHead...)
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -90,7 +90,7 @@ var tqCmd = &cobra.Command{
 				})
 			}
 			for _, value := range values {
-				err := demo.AddValue(value)
+				err := demo.AddRow(value)
 				if err != nil {
 					fmt.Println(err.Error())
 					return
