@@ -28,10 +28,14 @@ var buildCmd = &cobra.Command{
 	Long:  `go编译`, Example: "使用例子： A build",
 	Run: func(cmd *cobra.Command, args []string) {
 		file := ""
+		outFile := ""
 		if len(args) > 0 {
 			file = args[0]
 		}
-		Build(file)
+		if len(args) > 1 {
+			outFile = args[1]
+		}
+		Build(file, outFile)
 	},
 }
 var oss string
@@ -42,7 +46,7 @@ func init() {
 	hashCmd.Flags().StringVarP(&oss, "os", "o", "linux", "目标系统")
 	hashCmd.Flags().StringVarP(&arch, "arch", "a", "amd64", "目标架构")
 }
-func Build(file string) {
+func Build(file, outFile string) {
 	switch oss {
 	case "mac":
 		oss = "darwin"
@@ -52,5 +56,5 @@ func Build(file string) {
 	os.Setenv("CGO_ENABLED", "0")
 	os.Setenv("GOOS", oss)
 	os.Setenv("GOARCH", arch)
-	exec.Command("go", "build", file).Run()
+	exec.Command("go", "build", "-o", outFile, file).Run()
 }
