@@ -3,6 +3,7 @@ module p00q.cn/A_Toolset
 go 1.14
 
 require (
+	github.com/antchfx/htmlquery v1.2.3
 	github.com/astaxie/bat v0.0.2
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/dengsgo/math-engine v0.0.0-20200627074419-8918d8f8ea02

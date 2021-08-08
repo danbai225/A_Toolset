@@ -18,7 +18,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gogf/gf/net/ghttp"
+	"github.com/antchfx/htmlquery"
 	"github.com/leekchan/accounting"
 	"github.com/spf13/cobra"
 	"math"
@@ -26,6 +26,7 @@ import (
 	"p00q.cn/A_Toolset/itself"
 	"p00q.cn/A_Toolset/utils"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -64,16 +65,27 @@ func getHl(s1 string, s2 string) float64 {
 		utils.Check(err)
 		return float
 	}
-	rs, err := ghttp.Get("http://api.p00q.cn/re?scur=" + s1 + "&tcur=" + s2)
-	if err == nil {
-		strhl := rs.ReadAllString()
-		float, err := strconv.ParseFloat(strhl, 64)
-		utils.Check(err)
-		hlmap["hl"] = strhl
-		hlmap["time"] = strconv.FormatInt(time.Now().Unix(), 10)
-		data, err := json.Marshal(hlmap)
-		itself.Put("re-"+s1+"-"+s2, string(data))
-		return float
-	}
+	strhl := re(s1, s2)
+	float, err := strconv.ParseFloat(strhl, 64)
+	utils.Check(err)
+	hlmap["hl"] = strhl
+	hlmap["time"] = strconv.FormatInt(time.Now().Unix(), 10)
+	data, err := json.Marshal(hlmap)
+	itself.Put("re-"+s1+"-"+s2, string(data))
+	return float
+
 	return 0
+}
+func re(scur, tcur string) (r string) {
+	if tcur != "" && scur != "" {
+		rq, err := htmlquery.LoadURL("http://www.cnhuilv.com/" + strings.ToLower(scur) + "/" + strings.ToLower(tcur))
+		if err == nil {
+			node := htmlquery.FindOne(rq, "/html/body/div[4]/div/div[1]/div[3]/div[2]/span[1]")
+			if node != nil {
+				r = htmlquery.InnerText(node)
+				return r
+			}
+		}
+	}
+	return ""
 }
