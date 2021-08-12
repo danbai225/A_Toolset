@@ -21,7 +21,7 @@ import (
 	"os/exec"
 )
 
-// hashCmd represents the serve command
+// buildCmd represents the serve command
 var buildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "go编译",
@@ -43,8 +43,8 @@ var arch string
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-	hashCmd.Flags().StringVarP(&oss, "os", "o", "linux", "目标系统")
-	hashCmd.Flags().StringVarP(&arch, "arch", "a", "amd64", "目标架构")
+	buildCmd.Flags().StringVarP(&oss, "os", "o", "linux", "目标系统")
+	buildCmd.Flags().StringVarP(&arch, "arch", "a", "amd64", "目标架构")
 }
 func Build(file, outFile string) {
 	switch oss {
