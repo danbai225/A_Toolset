@@ -56,5 +56,8 @@ func Build(file, outFile string) {
 	os.Setenv("CGO_ENABLED", "0")
 	os.Setenv("GOOS", oss)
 	os.Setenv("GOARCH", arch)
-	exec.Command("go", "build", "-o", outFile, file).Run()
+	command := exec.Command("go", "build", "-o", outFile, file)
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	command.Run()
 }
