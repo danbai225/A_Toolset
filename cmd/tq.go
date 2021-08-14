@@ -41,6 +41,7 @@ var tqCmd = &cobra.Command{
 				log.Println(err.Error())
 				return
 			}
+
 			location := gjson.GetBytes(all, "location").String()
 			url := fmt.Sprintf("https://api.caiyunapp.com/v2.5/ujp0HddE4bY2SwRc/%s/realtime.json", location)
 			resp, err := http.Get(url)

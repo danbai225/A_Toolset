@@ -16,11 +16,13 @@ limitations under the License.
 package main
 
 import (
+	"log"
 	"p00q.cn/A_Toolset/cmd"
 	"p00q.cn/A_Toolset/itself"
 )
 
 func main() {
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
 	//编译后记得执行 a conf -i 初始化
 	itself.Init()
 	cmd.Execute()
