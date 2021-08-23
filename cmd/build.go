@@ -40,11 +40,13 @@ var buildCmd = &cobra.Command{
 }
 var oss string
 var arch string
+var release bool
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-	buildCmd.Flags().StringVarP(&oss, "os", "o", "linux", "目标系统")
-	buildCmd.Flags().StringVarP(&arch, "arch", "a", "amd64", "目标架构")
+	buildCmd.Flags().StringVarP(&oss, "os", "o", "", "目标系统")
+	buildCmd.Flags().StringVarP(&arch, "arch", "a", "", "目标架构")
+	buildCmd.Flags().BoolVarP(&release, "release", "r", false, "发行")
 }
 func Build(file, outFile string) {
 	switch oss {
@@ -53,10 +55,19 @@ func Build(file, outFile string) {
 	case "win":
 		oss = "windows"
 	}
-	os.Setenv("CGO_ENABLED", "0")
-	os.Setenv("GOOS", oss)
-	os.Setenv("GOARCH", arch)
-	command := exec.Command("go", "build", "-o", outFile, file)
+	if oss != "" {
+		os.Setenv("CGO_ENABLED", "0")
+		os.Setenv("GOOS", oss)
+	}
+	if arch != "" {
+		os.Setenv("GOARCH", arch)
+	}
+	var command *exec.Cmd
+	if release {
+		command = exec.Command("go", "build", "-o", outFile, file, `-ldflags="-s -w"`)
+	} else {
+		command = exec.Command("go", "build", "-o", outFile, file)
+	}
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	command.Run()
