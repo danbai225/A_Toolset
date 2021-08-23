@@ -64,7 +64,7 @@ func Build(file, outFile string) {
 	}
 	var command *exec.Cmd
 	if release {
-		command = exec.Command("go", "build", "-o", outFile, file, `-ldflags="-s -w"`)
+		command = exec.Command("go", "build", `-ldflags="-s -w"`, "-o", outFile, file)
 	} else {
 		command = exec.Command("go", "build", "-o", outFile, file)
 	}
