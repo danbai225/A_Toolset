@@ -8,9 +8,7 @@ require (
 	github.com/gogf/gf v1.16.9
 	github.com/golang/glog v1.0.0
 	github.com/googege/collie v0.5.0
-	github.com/jinzhongmin/gtra v0.0.0-20200107132000-abe6ef55e8b6
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/spf13/cobra v1.5.0
-	github.com/tidwall/gjson v1.14.3 // indirect
 	github.com/xlab/treeprint v1.1.0
 )
