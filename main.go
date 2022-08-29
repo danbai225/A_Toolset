@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,9 @@ package main
 import (
 	"log"
 	"p00q.cn/A_Toolset/cmd"
-	"p00q.cn/A_Toolset/itself"
 )
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
-	//编译后记得执行 a conf -i 初始化
-	itself.Init()
 	cmd.Execute()
 }
