@@ -9,6 +9,7 @@ require (
 	github.com/golang/glog v1.0.0
 	github.com/googege/collie v0.5.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+	github.com/solywsh/chatgpt v0.0.14
 	github.com/spf13/cobra v1.5.0
 	github.com/xlab/treeprint v1.1.0
 )
