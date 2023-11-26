@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - go build a.go
+  install:
+    cmds:
+      - go install a.go
