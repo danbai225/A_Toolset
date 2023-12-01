@@ -16,9 +16,6 @@ import (
 	"strings"
 )
 
-/*
-判断空 空返回True
-*/
 func IsNil(i interface{}) bool {
 	defer func() {
 		recover()
@@ -27,9 +24,6 @@ func IsNil(i interface{}) bool {
 	return vi.IsNil()
 }
 
-/*
-判断文件或文件夹存不存在
-*/
 func PathExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
@@ -42,7 +36,6 @@ func PathExists(path string) bool {
 	return false
 }
 
-// 判断所给路径是否为文件夹
 func IsDir(path string) bool {
 	s, err := os.Stat(path)
 	if err != nil {
@@ -51,12 +44,10 @@ func IsDir(path string) bool {
 	return s.IsDir()
 }
 
-// 判断所给路径是否为文件
 func IsFile(path string) bool {
 	return !IsDir(path)
 }
 
-//获取文件大小
 func GetFileSize(filename string) int64 {
 	var result int64
 	filepath.Walk(filename, func(path string, f os.FileInfo, err error) error {
@@ -66,9 +57,6 @@ func GetFileSize(filename string) int64 {
 	return result
 }
 
-/*
-验证错误
-*/
 func Check(err error) {
 	if err != nil {
 		println(err.Error())
@@ -92,7 +80,6 @@ func DirSizeB(path string) int64 {
 	return size
 }
 
-// 字节的单位转换 保留两位小数
 func FormatFileSize(fileSize int64) (size string) {
 	if fileSize < 1024 {
 		//return strconv.FormatInt(fileSize, 10) + "B"
@@ -113,18 +100,12 @@ func AddInitData(filepath string) {
 	gfile.PutBytesAppend(filepath, Int64ToBytes(int64(8)))
 }
 
-/*
-int64转Bytes
-*/
 func Int64ToBytes(i int64) []byte {
 	var buf = make([]byte, 8)
 	binary.BigEndian.PutUint64(buf, uint64(i))
 	return buf
 }
 
-/*
-Bytes转int64
-*/
 func BytesToInt64(buf []byte) int64 {
 	return int64(binary.BigEndian.Uint64(buf))
 }
@@ -154,7 +135,6 @@ func GetLANIps() []string {
 	return ips
 }
 
-//获取指定目录下的所有文件,包含子目录下的文件
 func GetAllFiles(dirPth string, suffix string, upper bool) (files []string, err error) {
 	var dirs []string
 	dir, err := ioutil.ReadDir(dirPth)
@@ -192,7 +172,6 @@ func GetAllFiles(dirPth string, suffix string, upper bool) (files []string, err 
 	return files, nil
 }
 
-//计算文件md5
 func CalcFileMD5(filename string) (string, error) {
 	f, err := os.Open(filename) //打开文件
 	if nil != err {
