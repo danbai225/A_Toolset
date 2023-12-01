@@ -117,6 +117,7 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 	result := string(cdata)
 	return result
 }
+
 func GetLANIps() []string {
 	ips := make([]string, 0)
 	addrs, err := net.InterfaceAddrs()
